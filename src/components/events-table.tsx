@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -16,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { gridEvents, type EventSeverity } from "@/lib/constants";
+import type { GridEvent, EventSeverity } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 const severityColors: Record<EventSeverity, string> = {
@@ -34,6 +35,16 @@ const severityBgColors: Record<EventSeverity, string> = {
 };
 
 export function EventsTable() {
+  const { data, isLoading, isError } = useQuery<GridEvent[]>({
+    queryKey: ["grid-events"],
+    queryFn: async () => {
+      const response = await fetch("/api/grid-events");
+      if (!response.ok) throw new Error("Failed to fetch grid events");
+      return response.json();
+    },
+    staleTime: 0,
+  });
+
   return (
     <Card className="w-full shadow-none border-0">
       <CardHeader>
@@ -43,63 +54,77 @@ export function EventsTable() {
         </CardDescription>
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[180px]">Timestamp</TableHead>
-              <TableHead className="w-[140px]">Type</TableHead>
-              <TableHead className="w-[100px]">Severity</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="w-[120px]">Impact</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {gridEvents.map((event) => {
-              const date = new Date(event.timestamp);
-              const formattedDate = date.toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              });
-              const formattedTime = date.toLocaleTimeString("en-US", {
-                hour: "2-digit",
-                minute: "2-digit",
-              });
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-muted-foreground">Loading grid events…</div>
+          </div>
+        )}
+        {isError && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-destructive">Failed to load grid events</div>
+          </div>
+        )}
+        {data && (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[180px]">Timestamp</TableHead>
+                <TableHead className="w-[140px]">Type</TableHead>
+                <TableHead className="w-[100px]">Severity</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="w-[120px]">Impact</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((event) => {
+                const date = new Date(event.timestamp);
+                const formattedDate = date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                });
+                const formattedTime = date.toLocaleTimeString("en-US", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
 
-              return (
-                <TableRow key={event.id}>
-                  <TableCell className="font-mono text-xs">
-                    <div>{formattedDate}</div>
-                    <div className="text-muted-foreground">{formattedTime}</div>
-                  </TableCell>
-                  <TableCell className="font-medium">{event.type}</TableCell>
-                  <TableCell>
-                    <span
-                      className={cn(
-                        "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium",
-                        severityBgColors[event.severity],
-                        severityColors[event.severity]
-                      )}
-                    >
-                      {event.severity}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <div>{event.description}</div>
-                    {event.location && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {event.location}
+                return (
+                  <TableRow key={event.id}>
+                    <TableCell className="font-mono text-xs">
+                      <div>{formattedDate}</div>
+                      <div className="text-muted-foreground">
+                        {formattedTime}
                       </div>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-mono text-sm font-semibold">
-                    {event.impact}
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+                    </TableCell>
+                    <TableCell className="font-medium">{event.type}</TableCell>
+                    <TableCell>
+                      <span
+                        className={cn(
+                          "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium",
+                          severityBgColors[event.severity],
+                          severityColors[event.severity]
+                        )}
+                      >
+                        {event.severity}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div>{event.description}</div>
+                      {event.location && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {event.location}
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-mono text-sm font-semibold">
+                      {event.impact}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
       </CardContent>
     </Card>
   );

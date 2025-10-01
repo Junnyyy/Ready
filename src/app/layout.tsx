@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
-        {children}
+        <main className="max-w-7xl mx-auto">{children}</main>
       </body>
     </html>
   );

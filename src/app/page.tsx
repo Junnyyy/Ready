@@ -1,12 +1,14 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { PowerUsageChart } from "@/components/power-usage-chart";
 import { EventsTable } from "@/components/events-table";
 import { CacheStatusIndicator } from "@/components/cache-status-indicator";
 import type { PowerDataPoint, GridEvent } from "@/lib/constants";
 
 export default function Home() {
+  const queryClient = useQueryClient();
+
   const powerQuery = useQuery<PowerDataPoint[]>({
     queryKey: ["power-usage"],
     queryFn: async () => {
@@ -27,10 +29,26 @@ export default function Home() {
     staleTime: 0,
   });
 
+  const handleRefresh = () => {
+    powerQuery.refetch();
+    eventsQuery.refetch();
+  };
+
+  const handleClearCache = () => {
+    queryClient.clear();
+    powerQuery.refetch();
+    eventsQuery.refetch();
+  };
+
   return (
     <div className="font-sans min-h-screen p-8">
       <div className="mb-6 px-2 sm:px-6">
-        <CacheStatusIndicator powerQuery={powerQuery} eventsQuery={eventsQuery} />
+        <CacheStatusIndicator
+          powerQuery={powerQuery}
+          eventsQuery={eventsQuery}
+          onRefresh={handleRefresh}
+          onClearCache={handleClearCache}
+        />
       </div>
       <div className="flex flex-col gap-8">
         <PowerUsageChart

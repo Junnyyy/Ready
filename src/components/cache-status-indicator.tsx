@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 interface CacheStatusIndicatorProps {
   powerQuery: {
@@ -15,11 +16,15 @@ interface CacheStatusIndicatorProps {
     isFetching: boolean;
     isError: boolean;
   };
+  onRefresh: () => void;
+  onClearCache: () => void;
 }
 
 export function CacheStatusIndicator({
   powerQuery,
   eventsQuery,
+  onRefresh,
+  onClearCache,
 }: CacheStatusIndicatorProps) {
   const [showLegend, setShowLegend] = useState(false);
 
@@ -67,27 +72,51 @@ export function CacheStatusIndicator({
             <span className="text-muted-foreground">- {description}</span>
           )}
         </div>
-        <button
-          onClick={() => setShowLegend(!showLegend)}
-          className="text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Toggle status legend"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={onRefresh}
+            disabled={isFetching}
+            size="sm"
+            className="h-7 px-2.5 text-xs"
           >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-            <path d="M12 17h.01" />
-          </svg>
-        </button>
+            Refresh
+          </Button>
+
+          <Button
+            onClick={onClearCache}
+            disabled={isFetching}
+            variant="destructive"
+            size="sm"
+            className="h-7 px-2.5 text-xs"
+          >
+            Clear Cache
+          </Button>
+
+          <Button
+            onClick={() => setShowLegend(!showLegend)}
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            aria-label="Toggle status legend"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <path d="M12 17h.01" />
+            </svg>
+          </Button>
+        </div>
       </div>
 
       {showLegend && (
@@ -95,25 +124,29 @@ export function CacheStatusIndicator({
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-red-500" />
             <span className="text-muted-foreground">
-              <strong className="text-foreground">Loading:</strong> First visit, no cache available
+              <strong className="text-foreground">Loading:</strong> First visit,
+              no cache available
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-orange-500" />
             <span className="text-muted-foreground">
-              <strong className="text-foreground">Updating:</strong> Showing cached data, revalidating in background
+              <strong className="text-foreground">Updating:</strong> Showing
+              cached data, revalidating in background
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500" />
             <span className="text-muted-foreground">
-              <strong className="text-foreground">Fresh:</strong> Data is ready and up-to-date
+              <strong className="text-foreground">Fresh:</strong> Data is ready
+              and up-to-date
             </span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-gray-400" />
             <span className="text-muted-foreground">
-              <strong className="text-foreground">Error:</strong> Failed to load data
+              <strong className="text-foreground">Error:</strong> Failed to load
+              data
             </span>
           </div>
         </div>

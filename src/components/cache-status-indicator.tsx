@@ -22,34 +22,34 @@ export function CacheStatusIndicator({
   const hasError = powerQuery.isError || eventsQuery.isError;
   const hasData = !!powerQuery.data && !!eventsQuery.data;
   const isFetching = powerQuery.isFetching || eventsQuery.isFetching;
-  const isLoading = powerQuery.isLoading || eventsQuery.isLoading;
 
-  let status: "error" | "updating" | "fresh" | "cached";
   let label: string;
+  let description: string;
   let dotColor: string;
 
   if (hasError) {
-    status = "error";
     label = "Error";
+    description = "Failed to load data";
     dotColor = "bg-gray-400";
   } else if (hasData && isFetching) {
-    status = "updating";
     label = "Updating";
+    description = "Refreshing from server";
     dotColor = "bg-orange-500";
   } else if (hasData && !isFetching) {
-    status = "fresh";
     label = "Fresh";
+    description = "Loaded from cache";
     dotColor = "bg-green-500";
   } else {
-    status = "cached";
     label = "Loading";
+    description = "Fetching from server";
     dotColor = "bg-red-500";
   }
 
   return (
-    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="flex items-center gap-2 text-sm">
       <div className={`w-2 h-2 rounded-full ${dotColor}`} />
-      <span>{label}</span>
+      <span className="font-medium text-foreground">{label}</span>
+      <span className="text-muted-foreground">- {description}</span>
     </div>
   );
 }

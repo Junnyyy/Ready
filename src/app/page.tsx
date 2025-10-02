@@ -29,7 +29,7 @@ export default function Home() {
 
   return (
     <div className="font-sans min-h-screen p-8">
-      <div className="mb-6">
+      <div className="mb-6 px-2 sm:px-6">
         <CacheStatusIndicator powerQuery={powerQuery} eventsQuery={eventsQuery} />
       </div>
       <div className="flex flex-col gap-8">

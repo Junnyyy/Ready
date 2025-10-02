@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/chart";
 
 import type { PowerDataPoint } from "@/lib/constants";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PowerUsageChartProps {
   data: PowerDataPoint[] | undefined;
@@ -52,10 +53,8 @@ export function PowerUsageChart({ data, isLoading, isError }: PowerUsageChartPro
       </CardHeader>
       <CardContent className="px-2 sm:px-6">
         {isLoading && (
-          <div className="flex items-center justify-center h-[250px]">
-            <div className="text-muted-foreground">
-              Loading power usage data…
-            </div>
+          <div className="space-y-3">
+            <Skeleton className="h-[250px] w-full" />
           </div>
         )}
         {isError && (

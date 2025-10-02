@@ -64,7 +64,7 @@ export function CacheStatusIndicator({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3">
         <div className="flex items-center gap-2 text-sm">
           <div className={`w-2 h-2 rounded-full ${dotColor}`} />
           <span className="font-medium text-foreground">{label}</span>

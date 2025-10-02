@@ -41,7 +41,7 @@ export default function Home() {
   };
 
   return (
-    <div className="font-sans min-h-screen p-8">
+    <div className="font-sans min-h-screen p-4 sm:p-8">
       <div className="mb-6 px-2 sm:px-6">
         <CacheStatusIndicator
           powerQuery={powerQuery}

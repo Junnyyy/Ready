@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -20,6 +19,12 @@ import {
 import type { GridEvent, EventSeverity } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
+interface EventsTableProps {
+  data: GridEvent[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+}
+
 const severityColors: Record<EventSeverity, string> = {
   low: "text-blue-600 dark:text-blue-400",
   medium: "text-yellow-600 dark:text-yellow-400",
@@ -34,17 +39,7 @@ const severityBgColors: Record<EventSeverity, string> = {
   critical: "bg-red-50 dark:bg-red-950/30",
 };
 
-export function EventsTable() {
-  const { data, isLoading, isError } = useQuery<GridEvent[]>({
-    queryKey: ["grid-events"],
-    queryFn: async () => {
-      const response = await fetch("/api/grid-events");
-      if (!response.ok) throw new Error("Failed to fetch grid events");
-      return response.json();
-    },
-    staleTime: 0,
-  });
-
+export function EventsTable({ data, isLoading, isError }: EventsTableProps) {
   return (
     <Card className="w-full shadow-none border-0">
       <CardHeader>

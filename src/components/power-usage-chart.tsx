@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
-import { useQuery } from "@tanstack/react-query";
 
 import {
   Card,
@@ -22,6 +21,12 @@ import {
 
 import type { PowerDataPoint } from "@/lib/constants";
 
+interface PowerUsageChartProps {
+  data: PowerDataPoint[] | undefined;
+  isLoading: boolean;
+  isError: boolean;
+}
+
 export const description = "Power usage: predicted vs actual";
 
 const chartConfig = {
@@ -35,17 +40,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function PowerUsageChart() {
-  const { data, isLoading, isError } = useQuery<PowerDataPoint[]>({
-    queryKey: ["power-usage"],
-    queryFn: async () => {
-      const response = await fetch("/api/power-usage");
-      if (!response.ok) throw new Error("Failed to fetch power usage data");
-      return response.json();
-    },
-    staleTime: 0,
-  });
-
+export function PowerUsageChart({ data, isLoading, isError }: PowerUsageChartProps) {
   return (
     <Card className="w-full shadow-none border-0">
       <CardHeader>

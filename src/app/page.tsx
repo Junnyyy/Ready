@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { PowerUsageChart } from "@/components/power-usage-chart";
@@ -17,7 +18,7 @@ interface GridEventsResponse {
   };
 }
 
-export default function Home() {
+function HomeContent() {
   const queryClient = useQueryClient();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const pageSize = 5;
@@ -81,5 +82,13 @@ export default function Home() {
         />
       </div>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="font-sans min-h-screen p-4 sm:p-8" />}>
+      <HomeContent />
+    </Suspense>
   );
 }

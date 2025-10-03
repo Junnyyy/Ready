@@ -1,13 +1,26 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryState, parseAsInteger } from "nuqs";
 import { PowerUsageChart } from "@/components/power-usage-chart";
 import { EventsTable } from "@/components/events-table";
 import { CacheStatusIndicator } from "@/components/cache-status-indicator";
 import type { PowerDataPoint, GridEvent } from "@/lib/constants";
 
+interface GridEventsResponse {
+  data: GridEvent[];
+  pagination: {
+    page: number;
+    pageSize: number;
+    totalCount: number;
+    totalPages: number;
+  };
+}
+
 export default function Home() {
   const queryClient = useQueryClient();
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const pageSize = 5;
 
   const powerQuery = useQuery<PowerDataPoint[]>({
     queryKey: ["power-usage"],
@@ -19,10 +32,12 @@ export default function Home() {
     staleTime: 0,
   });
 
-  const eventsQuery = useQuery<GridEvent[]>({
-    queryKey: ["grid-events"],
+  const eventsQuery = useQuery<GridEventsResponse>({
+    queryKey: ["grid-events", page],
     queryFn: async () => {
-      const response = await fetch("/api/grid-events");
+      const response = await fetch(
+        `/api/grid-events?page=${page}&pageSize=${pageSize}`
+      );
       if (!response.ok) throw new Error("Failed to fetch grid events");
       return response.json();
     },
@@ -57,9 +72,12 @@ export default function Home() {
           isError={powerQuery.isError}
         />
         <EventsTable
-          data={eventsQuery.data}
+          data={eventsQuery.data?.data}
           isLoading={eventsQuery.isLoading}
           isError={eventsQuery.isError}
+          currentPage={page}
+          totalPages={eventsQuery.data?.pagination.totalPages ?? 1}
+          onPageChange={setPage}
         />
       </div>
     </div>

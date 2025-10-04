@@ -28,6 +28,8 @@ import type { GridEvent, EventSeverity } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 
+const PAGE_SIZE = 5;
+
 interface EventsTableProps {
   data: GridEvent[] | undefined;
   isLoading: boolean;
@@ -165,7 +167,27 @@ export function EventsTable({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((event) => {
+              {Array.from({ length: PAGE_SIZE }).map((_, index) => {
+                const event = data[index];
+
+                if (!event) {
+                  // Empty row to maintain consistent height
+                  return (
+                    <TableRow key={`empty-${index}`} className="hover:bg-transparent border-0">
+                      <TableCell className="border-0">
+                        <div className="invisible">
+                          <div>Placeholder</div>
+                          <div>text</div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="border-0" />
+                      <TableCell className="border-0" />
+                      <TableCell className="border-0" />
+                      <TableCell className="border-0" />
+                    </TableRow>
+                  );
+                }
+
                 const date = new Date(event.timestamp);
                 const formattedDate = date.toLocaleDateString("en-US", {
                   month: "short",
@@ -214,68 +236,65 @@ export function EventsTable({
             </TableBody>
           </Table>
         )}
-        {data && totalPages > 1 && (
-          <div className="mt-6 flex flex-col items-center gap-3">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (currentPage > 1) onPageChange(currentPage - 1);
-                    }}
-                    aria-disabled={currentPage === 1}
-                    className={cn(
-                      currentPage === 1 &&
-                        "pointer-events-none opacity-50"
-                    )}
-                  />
-                </PaginationItem>
-                {getPageNumbers().map((page, idx) =>
-                  page === "ellipsis" ? (
-                    <PaginationItem key={`ellipsis-${idx}`}>
-                      <span className="flex size-9 items-center justify-center">
-                        …
-                      </span>
-                    </PaginationItem>
-                  ) : (
-                    <PaginationItem key={page}>
-                      <PaginationLink
-                        href="#"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          onPageChange(page);
-                        }}
-                        isActive={currentPage === page}
-                      >
-                        {page}
-                      </PaginationLink>
-                    </PaginationItem>
-                  )
-                )}
-                <PaginationItem>
-                  <PaginationNext
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (currentPage < totalPages)
-                        onPageChange(currentPage + 1);
-                    }}
-                    aria-disabled={currentPage === totalPages}
-                    className={cn(
-                      currentPage === totalPages &&
-                        "pointer-events-none opacity-50"
-                    )}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
-            <p className="text-sm text-muted-foreground">
-              Page {currentPage} of {totalPages}
-            </p>
-          </div>
-        )}
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage > 1) onPageChange(currentPage - 1);
+                  }}
+                  aria-disabled={currentPage === 1}
+                  className={cn(
+                    currentPage === 1 && "pointer-events-none opacity-50"
+                  )}
+                />
+              </PaginationItem>
+              {getPageNumbers().map((page, idx) =>
+                page === "ellipsis" ? (
+                  <PaginationItem key={`ellipsis-${idx}`}>
+                    <span className="flex size-9 items-center justify-center">
+                      …
+                    </span>
+                  </PaginationItem>
+                ) : (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        onPageChange(page);
+                      }}
+                      isActive={currentPage === page}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              )}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (currentPage < totalPages)
+                      onPageChange(currentPage + 1);
+                  }}
+                  aria-disabled={currentPage === totalPages}
+                  className={cn(
+                    currentPage === totalPages &&
+                      "pointer-events-none opacity-50"
+                  )}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+          <p className="text-sm text-muted-foreground">
+            Page {currentPage} of {totalPages}
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

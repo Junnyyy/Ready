@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 interface CacheStatusIndicatorProps {
@@ -27,6 +27,11 @@ export function CacheStatusIndicator({
   onClearCache,
 }: CacheStatusIndicatorProps) {
   const [showLegend, setShowLegend] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const hasError = powerQuery.isError || eventsQuery.isError;
   const hasData = !!powerQuery.data && !!eventsQuery.data;
@@ -37,7 +42,12 @@ export function CacheStatusIndicator({
   let description: string;
   let dotColor: string;
 
-  if (hasError) {
+  // Show consistent loading state until hydrated to prevent hydration mismatch
+  if (!isHydrated) {
+    label = "Loading";
+    description = "";
+    dotColor = "bg-gray-400";
+  } else if (hasError) {
     label = "Error";
     description = "Failed to load data";
     dotColor = "bg-gray-400";

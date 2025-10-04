@@ -18,6 +18,12 @@ interface GridEventsResponse {
   };
 }
 
+interface GridEventsMetadata {
+  totalCount: number;
+  totalPages: number;
+  pageSize: number;
+}
+
 function HomeContent() {
   const queryClient = useQueryClient();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
@@ -31,6 +37,16 @@ function HomeContent() {
       return response.json();
     },
     staleTime: 0,
+  });
+
+  const metadataQuery = useQuery<GridEventsMetadata>({
+    queryKey: ["grid-events-metadata"],
+    queryFn: async () => {
+      const response = await fetch("/api/grid-events/metadata");
+      if (!response.ok) throw new Error("Failed to fetch grid events metadata");
+      return response.json();
+    },
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour since it rarely changes
   });
 
   const eventsQuery = useQuery<GridEventsResponse>({
@@ -47,12 +63,14 @@ function HomeContent() {
 
   const handleRefresh = () => {
     powerQuery.refetch();
+    metadataQuery.refetch();
     eventsQuery.refetch();
   };
 
   const handleClearCache = () => {
     queryClient.clear();
     powerQuery.refetch();
+    metadataQuery.refetch();
     eventsQuery.refetch();
   };
 
@@ -77,7 +95,7 @@ function HomeContent() {
           isLoading={eventsQuery.isLoading}
           isError={eventsQuery.isError}
           currentPage={page}
-          totalPages={eventsQuery.data?.pagination.totalPages ?? 1}
+          totalPages={metadataQuery.data?.totalPages ?? 1}
           onPageChange={setPage}
         />
       </div>

@@ -24,11 +24,21 @@ interface GridEventsMetadata {
   pageSize: number;
 }
 
+/**
+ * Main content component demonstrating React Query's prewarmed cache feature.
+ * On first visit, data loads with a simulated 2-second delay. React Query persists
+ * the cache to IndexedDB. On subsequent visits, cached data displays instantly while
+ * revalidating in the background.
+ */
 function HomeContent() {
   const queryClient = useQueryClient();
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const pageSize = 5;
 
+  /**
+   * Fetches power usage data with zero staleTime to always revalidate.
+   * Cache persists to IndexedDB for instant display on next visit.
+   */
   const powerQuery = useQuery<PowerDataPoint[]>({
     queryKey: ["power-usage"],
     queryFn: async () => {
@@ -39,6 +49,11 @@ function HomeContent() {
     staleTime: 0,
   });
 
+  /**
+   * Fetches pagination metadata independently from data.
+   * Cached for 1 hour since total count rarely changes, enabling
+   * accurate pagination rendering before data loads.
+   */
   const metadataQuery = useQuery<GridEventsMetadata>({
     queryKey: ["grid-events-metadata"],
     queryFn: async () => {
@@ -46,9 +61,13 @@ function HomeContent() {
       if (!response.ok) throw new Error("Failed to fetch grid events metadata");
       return response.json();
     },
-    staleTime: 1000 * 60 * 60, // Cache for 1 hour since it rarely changes
+    staleTime: 1000 * 60 * 60,
   });
 
+  /**
+   * Fetches paginated grid events. Each page is cached separately by query key.
+   * Demonstrates prewarmed cache: instant display from IndexedDB on return visits.
+   */
   const eventsQuery = useQuery<GridEventsResponse>({
     queryKey: ["grid-events", page],
     queryFn: async () => {

@@ -20,6 +20,12 @@ interface CacheStatusIndicatorProps {
   onClearCache: () => void;
 }
 
+/**
+ * Displays real-time cache status for the prewarmed cache demo.
+ * Shows different states: Loading (first visit), Updating (revalidating cached data),
+ * Fresh (cached data ready), or Error. Prevents hydration mismatch by deferring
+ * status updates until after client hydration.
+ */
 export function CacheStatusIndicator({
   powerQuery,
   eventsQuery,
@@ -42,7 +48,6 @@ export function CacheStatusIndicator({
   let description: string;
   let dotColor: string;
 
-  // Show consistent loading state until hydrated to prevent hydration mismatch
   if (!isHydrated) {
     label = "Loading";
     description = "";
@@ -52,17 +57,14 @@ export function CacheStatusIndicator({
     description = "Failed to load data";
     dotColor = "bg-gray-400";
   } else if (isLoading && !hasData) {
-    // First visit: No cached data, fetching from server
     label = "Loading";
     description = "Fetching from server";
     dotColor = "bg-red-500";
   } else if (hasData && isFetching) {
-    // Subsequent visit: Showing cached data while refetching from server
     label = "Updating";
     description = "Revalidating with server";
     dotColor = "bg-orange-500";
   } else if (hasData && !isFetching) {
-    // Data loaded and no background activity
     label = "Fresh";
     description = "Data ready";
     dotColor = "bg-green-500";

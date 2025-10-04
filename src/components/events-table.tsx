@@ -53,6 +53,11 @@ const severityBgColors: Record<EventSeverity, string> = {
   critical: "bg-red-50 dark:bg-red-950/30",
 };
 
+/**
+ * Displays paginated grid events with loading states optimized to prevent layout shift.
+ * Table always renders exactly PAGE_SIZE rows (padding with invisible placeholders).
+ * Pagination controls remain visible and stable during loading transitions.
+ */
 export function EventsTable({
   data,
   isLoading,
@@ -61,40 +66,36 @@ export function EventsTable({
   totalPages,
   onPageChange,
 }: EventsTableProps) {
-  // Generate page numbers to show
+  /**
+   * Generates page numbers for pagination with ellipsis for large page counts.
+   * Returns an array of page numbers and "ellipsis" strings for truncation.
+   */
   const getPageNumbers = () => {
     const pages: (number | "ellipsis")[] = [];
-    const showPages = 5; // Max page numbers to show at once
+    const showPages = 5;
 
     if (totalPages <= showPages) {
-      // Show all pages if total is small
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Always show first page
       pages.push(1);
 
-      // Calculate range around current page
       const start = Math.max(2, currentPage - 1);
       const end = Math.min(totalPages - 1, currentPage + 1);
 
-      // Add ellipsis after first page if needed
       if (start > 2) {
         pages.push("ellipsis");
       }
 
-      // Add pages around current
       for (let i = start; i <= end; i++) {
         pages.push(i);
       }
 
-      // Add ellipsis before last page if needed
       if (end < totalPages - 1) {
         pages.push("ellipsis");
       }
 
-      // Always show last page
       pages.push(totalPages);
     }
 
@@ -171,7 +172,6 @@ export function EventsTable({
                 const event = data[index];
 
                 if (!event) {
-                  // Empty row to maintain consistent height
                   return (
                     <TableRow key={`empty-${index}`} className="hover:bg-transparent border-0">
                       <TableCell className="border-0">

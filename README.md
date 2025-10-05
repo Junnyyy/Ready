@@ -204,7 +204,3 @@ Inspect the cached data in Chrome DevTools -> Application -> IndexedDB.
 - [IndexedDB API](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API)
 - [Next.js App Router](https://nextjs.org/docs/app)
 - [React Query Best Practices](https://tkdodo.eu/blog/practical-react-query)
-
-## License
-
-MIT

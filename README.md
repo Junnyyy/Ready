@@ -2,6 +2,8 @@
 
 A demonstration of React Query's persistent cache feature using IndexedDB. Experience **instant data loading** on return visits by prewarming the cache-data displays immediately while revalidating in the background.
 
+https://www.johnnyle.io/read/never-load
+
 ## What is a Prewarmed Cache?
 
 Traditional web apps fetch data on every visit, showing loading states each time. With a prewarmed cache:
